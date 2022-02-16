@@ -60,7 +60,7 @@ const viewAllDepartments = () =>{
       console.table(rows);
   });
 };
-viewAllDepartments();
+
 //View all Roles function
 const viewAllRoles = () => {
   db.query(`SELECT * FROM department 
@@ -70,7 +70,7 @@ const viewAllRoles = () => {
 };
 //view all employees function
 const viewAllEmployees = () =>{
-  db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.role_title, role.salary, department.department_name,
+  db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.role_title, department.department_name, role.salary,
   CONCAT(e.first_name, ' ' ,e.last_name) AS Manager FROM employee 
   INNER JOIN role on role.id = employee.role_id 
   INNER JOIN department on department.id = role.department_id left 
