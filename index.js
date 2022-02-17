@@ -43,6 +43,10 @@ db.connect(err => {
 //View all Department function
 const viewAllDepartments = () =>{
   db.query(`SELECT * FROM department`, (err, rows) => {
+    console.log();
+      console.log('=========================');
+      console.log('     All Departments     ');
+      console.log('=========================');
       console.table(rows);
   });
   userPrompt();
@@ -50,8 +54,12 @@ const viewAllDepartments = () =>{
 
 //View all Roles function
 const viewAllRoles = () => {
-  db.query(`SELECT * FROM department 
-          LEFT JOIN role ON role.department_id = department.id;`, (err, rows) =>{
+  db.query(`SELECT role.id, role.role_title, role.salary, department.department_name FROM role 
+          Left JOIN department ON role.department_id = department.id;`, (err, rows) =>{
+            console.log();
+      console.log('=========================');
+      console.log('        All Roles        ');
+      console.log('=========================');
       console.table(rows);
   })
   userPrompt();
@@ -63,8 +71,13 @@ const viewAllEmployees = () =>{
   INNER JOIN role on role.id = employee.role_id 
   INNER JOIN department on department.id = role.department_id left 
   join employee e on employee.manager_id = e.id;`, (err, rows) => {
+      console.log();
+      console.log('=========================');
+      console.log('     All Employees       ');
+      console.log('=========================');
       console.table(rows);
   });
+  userPrompt();
 };
 
 //________________ADD__________________________________
@@ -94,6 +107,7 @@ const addDepartment= () =>{
       }
   })
   //viewAllDepartments();  
+  userPrompt();
   });
 };
 
@@ -141,30 +155,86 @@ const addRole = () =>{
     },
   ])
   .then(answer =>{
-      const sql = `INSERT INTO role (role_title, salary, department_id)
-              VALUES ('${answer.nameInput}','${answer.salary}','${answer.departmentId}')`;
+      const sql = `INSERT INTO role (role_title, salary, department_id) 
+      VALUES ('${answer.roleTitle}','${answer.salary}','${answer.departmentId}')`;
     db.query(sql, (err, result) => {
       if(err) {
           console.log(err);
       }
   })
-  viewAllRoles();  
+  //viewAllRoles();  
+  userPrompt();
   });
 };
 
 //Add an employee function
-const addEmployee = () => {
-  const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
-              VALUES(?,?,?,?)`;
-  const params = ['First', 'Last', 2, 4];
 
-  db.query(sql, params, (err, result) => {
-      if(err) {
-          console.log(err);
+const addEmployee = () => {
+  inquirer.prompt ([
+    {
+      type: 'input',
+      name: 'firstName',
+      message: "What is the employee's First Name?",
+      validate: nameInput => {
+        if (nameInput) {
+            return true;
+        } else {
+            console.log ("Please enter the employee first name!");
+            return false; 
+        }
       }
-      console.log(result);
-  })
-  viewAllEmployees();
+    },
+    {
+      type: 'input',
+      name: 'lastName',
+      message: "What is the employee's Last Name?",
+      validate: nameInput => {
+        if (nameInput) {
+            return true;
+        } else {
+            console.log ("Please enter the employee last name!");
+            return false; 
+        }
+      }
+    },
+    {
+      type: 'input',
+      name: 'roleTitle',
+      message: "What is the role id for this employee?",
+      validate: nameInput => {
+        if (nameInput) {
+            return true;
+        } else {
+            console.log ("Please enter a role id for this employee!");
+            return false; 
+        }
+      }
+    },
+    {
+      type: 'input',
+      name: 'managerId',
+      message: "What is the manager id for this employee?",
+      validate: nameInput => {
+        if (nameInput) {
+            return true;
+        } else {
+            console.log ("Please enter a manager id for this employee!");
+            return false; 
+        }
+      }
+    },
+  ])
+  .then(answer =>{
+    const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+            VALUES ('${answer.firstName}','${answer.lastName}','${answer.roleId}','${answer.managerId})`;
+            db.query(sql, (err, result) => {
+              if(err) {
+                  console.log(err);
+              }
+          })
+//viewAllEmployees();  
+  userPrompt();
+  });
 };
 /*
 //________________UPDATE__________________________________
@@ -245,7 +315,7 @@ const userPrompt = () => {
       type: 'list',
       name: 'choice',
       message: "What would you like to do?",
-      choices: ['View All Departments', 'View All Roles', 'View All Employees','Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role']    
+      choices: ['View All Departments', 'View All Roles', 'View All Employees','Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role', 'Exit']    
     },
   ])
   .then(promptAnswer =>{
@@ -271,6 +341,9 @@ const userPrompt = () => {
         break;
       case 'Update An Employee Role':
         updateEmployeeRole();
+        break;
+      case 'Exit':
+        db.end();
         break;
     }
   })
