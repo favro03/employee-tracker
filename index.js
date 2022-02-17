@@ -38,20 +38,6 @@ db.connect(err => {
   //promptInitiate();
 });
 
-//______________PROMPT PLACE HOLDER_________________
-/*
-const userPrompt = () => {
-  //not sure if I need the return see when testing
-  return inquirer.prompt ([
-    {
-
-    },
-  ])
-  .then(answer =>{
-    //looks at the pormpt answer then will switch to the right case and execute that code
-  })
-};*/
-
 
 //__________________VIEW ALL_________________________
 //View all Department function
@@ -59,14 +45,16 @@ const viewAllDepartments = () =>{
   db.query(`SELECT * FROM department`, (err, rows) => {
       console.table(rows);
   });
+  userPrompt();
 };
 
 //View all Roles function
 const viewAllRoles = () => {
   db.query(`SELECT * FROM department 
-          RIGHT JOIN role ON role.department_id = department.id;`, (err, rows) =>{
+          LEFT JOIN role ON role.department_id = department.id;`, (err, rows) =>{
       console.table(rows);
   })
+  userPrompt();
 };
 //view all employees function
 const viewAllEmployees = () =>{
@@ -82,32 +70,86 @@ const viewAllEmployees = () =>{
 //________________ADD__________________________________
 //Create a department function
 const addDepartment= () =>{
-  const sql = `INSERT INTO department (department_name)
-              VALUES(?)`;
-  //const params = ['HR'];
-
-  db.query(sql, params, (err, result) => {
+  inquirer.prompt ([
+    {
+      type: 'input',
+      name: 'departmentName',
+      message: "What is the name of the department?",
+      validate: nameInput => {
+        if (nameInput) {
+            return true;
+        } else {
+            console.log ("Please enter the name of the department!");
+            return false; 
+        }
+      }
+    },
+  ])
+  .then(answer =>{
+      const sql = `INSERT INTO department (department_name)
+                  VALUES('${answer.departmentName}')`;
+    db.query(sql, (err, result) => {
       if(err) {
           console.log(err);
       }
-      console.log(result);
   })
-  viewAllDepartments();
+  //viewAllDepartments();  
+  });
 };
 
 //Add a role function
 const addRole = () =>{
-  const sql = `INSERT INTO role (role_title, salary, department_id)
-              VALUES (?,?,?)`;
-  //const params = ['Manager', 80000, 4];
-
-  db.query(sql, params, (err, result) => {
+  inquirer.prompt ([
+    {
+      type: 'input',
+      name: 'roleTitle',
+      message: "What is the title of the role?",
+      validate: nameInput => {
+        if (nameInput) {
+            return true;
+        } else {
+            console.log ("Please enter the role title!");
+            return false; 
+        }
+      }
+    },
+    {
+      type: 'input',
+      name: 'salary',
+      message: "What is the salary for this role?",
+      validate: nameInput => {
+        if (nameInput) {
+            return true;
+        } else {
+            console.log ("Please enter salary!");
+            return false; 
+        }
+      }
+    },
+    {
+      type: 'input',
+      name: 'departmentId',
+      message: "What is the department id for this role?",
+      validate: nameInput => {
+        if (nameInput) {
+            return true;
+        } else {
+            console.log ("Please enter a department id for the role!");
+            return false; 
+        }
+      }
+    },
+  ])
+  .then(answer =>{
+      const sql = `INSERT INTO role (role_title, salary, department_id)
+              VALUES ('${answer.nameInput}','${answer.salary}','${answer.departmentId}')`;
+    db.query(sql, (err, result) => {
       if(err) {
           console.log(err);
       }
-      console.log(result);
   })
-  viewAllRoles();
+  viewAllRoles();  
+  });
 };
 
 //Add an employee function
@@ -193,3 +235,45 @@ const updateEmployeeRole = () => {
     });
 }
 */
+
+//______________PROMPT PLACE HOLDER_________________
+
+const userPrompt = () => {
+  //not sure if I need the return see when testing
+  return inquirer.prompt ([
+    {
+      type: 'list',
+      name: 'choice',
+      message: "What would you like to do?",
+      choices: ['View All Departments', 'View All Roles', 'View All Employees','Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role']    
+    },
+  ])
+  .then(promptAnswer =>{
+    //looks at the pormpt answer then will switch to the right case and execute that code
+    switch(promptAnswer.choice){
+      case 'View All Departments':
+        viewAllDepartments();
+        break;
+      case 'View All Roles':
+        viewAllRoles();
+        break;
+      case 'View All Employees':
+        viewAllEmployees();
+        break;
+      case 'Add A Department': 
+        addDepartment();
+        break;
+      case 'Add A Role': 
+        addRole();
+        break;
+      case 'Add An Employee': 
+        addEmployee();
+        break;
+      case 'Update An Employee Role':
+        updateEmployeeRole();
+        break;
+    }
+  })
+};
+
+userPrompt();
