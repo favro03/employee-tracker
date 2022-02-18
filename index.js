@@ -44,11 +44,14 @@ db.connect(err => {
 //View all Department function
 const viewAllDepartments = () =>{
   db.query(`SELECT * FROM department`, (err, rows) => {
+    if(err){
+      console.log(err);
+    }
     console.log();
-      console.log('=========================');
-      console.log('     All Departments     ');
-      console.log('=========================');
-      console.table(rows);
+    console.log('=========================');
+    console.log('     All Departments     ');
+    console.log('=========================');
+    console.table(rows);
   });
   userPrompt();
 };
@@ -73,11 +76,14 @@ const viewAllManagers = () =>{
 const viewAllRoles = () => {
   db.query(`SELECT role.id, role.role_title, role.salary, department.department_name FROM role 
           Left JOIN department ON role.department_id = department.id;`, (err, rows) =>{
-            console.log();
-      console.log('=========================');
-      console.log('        All Roles        ');
-      console.log('=========================');
-      console.table(rows);
+    if(err){
+      console.log(err);
+    }
+    console.log();
+    console.log('=========================');
+    console.log('        All Roles        ');
+    console.log('=========================');
+    console.table(rows);
   })
   userPrompt();
 };
@@ -88,11 +94,14 @@ const viewAllEmployees = () =>{
   INNER JOIN role on role.id = employee.role_id 
   INNER JOIN department on department.id = role.department_id 
   LEFT join manager on employee.manager_id = manager.id;`, (err, rows) => {
-      console.log();
-      console.log('=========================');
-      console.log('     All Employees       ');
-      console.log('=========================');
-      console.table(rows);
+    if(err){
+      console.log(err);
+    }
+    console.log();
+    console.log('=========================');
+    console.log('     All Employees       ');
+    console.log('=========================');
+    console.table(rows);
   });
   userPrompt();
 };
@@ -226,9 +235,9 @@ const addEmployee = () => {
         choices: roleArray,
       },
       {
-        name: "manager",
         type: "rawlist",
         message: "What is the employee's manager name?",
+        name: "manager",
         choices: managerArray,
       },
     ])
@@ -244,10 +253,7 @@ const addEmployee = () => {
         role_id,
       };
 
-      db.query(
-        "INSERT INTO employee SET ?;",
-        newEmployee,
-        err => {
+      db.query(`INSERT INTO employee SET ?;`, newEmployee, err => {
           if (err) {
             console.log(err);
           }
@@ -257,7 +263,68 @@ const addEmployee = () => {
       );
     });
 }
-//______________PROMPT PLACE HOLDER_________________
+//________________UPDATE__________________________________
+const updateEmployeeRole = () => {
+  let employeeArr = [];
+  let roleArr = [];
+  db.query(`SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name) AS employeeName, employee.role_id, role.role_title AS title FROM employee JOIN role ON employee.role_id = role.id`, (err, rows) => {
+        if (err) {
+          console.log(err);
+        }
+  
+
+        inquirer.
+        prompt([
+          {
+            name: 'employeeSelection',
+            type: 'rawlist',
+            message: "What employee needs updating?",
+            choices: function() {
+                for(let i=0; i < rows.length; i++) {
+                    employeeArr.push(rows[i].employeeName);
+                }
+                return employeeArr;
+            },
+            
+        },
+        {
+            name: 'role',
+            type: 'rawlist',
+            message: "update the chosen role for the chosen person",
+            choices: function() {
+                for(let j=0; j < rows.length; j++) {
+                    roleArr.push(rows[j].title);
+                }
+                return roleArr;
+            },
+        }
+      ])
+    .then(answer =>{
+        //let firstName = answer.employeeSelection.split(" ")[0];
+       
+        let roleID = roleArr.indexOf(answer.role) + 1;
+        let chosenItem = employeeArr.indexOf(answer.employeeSelection) + 1;
+/*
+        for(let i=1; i <= answer.length; i++) {
+          if(answer[i].fullName === answer.employeeArr) {
+              chosenItem = i;
+              console.log(chosenItem);
+          }
+      }*/
+        
+        db.query (`UPDATE employee SET role_id = ${roleID} WHERE id = ${chosenItem};`), (err,res) => {
+          if (err) {
+            console.log(err);
+          }
+        }
+//UPDATE employee SET role_id =6 WHERE id =9;
+    // re-prompt the user
+    userPrompt();
+    
+      });
+});
+}
+//______________USER PROMPT______________________________
 
 const userPrompt = () => {
   //not sure if I need the return see when testing
