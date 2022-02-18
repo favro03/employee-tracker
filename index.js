@@ -106,6 +106,21 @@ const viewEmployeesByManager = () => {
   });
   userPrompt();
 };
+const viewEmployeesByDepartment= () => {
+  db.query(`SELECT department.department_name AS Department, CONCAT(employee.first_name, ' ' ,employee.last_name) AS Employee FROM employee 
+  INNER JOIN role on role.id = employee.role_id 
+  INNER JOIN department on department.id = role.department_id;`, (err,rows) => {
+    if(err){
+      console.log(err);
+    }
+    console.log();
+    console.log('=========================');
+    console.log(' Employees by Department ');
+    console.log('=========================');
+    console.table(rows);
+  });
+  userPrompt();
+};
 //________________ADD__________________________________
 //Create a department function
 const addDepartment= () =>{
@@ -328,7 +343,7 @@ const userPrompt = () => {
       type: 'list',
       name: 'choice',
       message: "What would you like to do?",
-      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'View All Managers', 'Veiw Employee by Manager','Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role', 'Exit']    
+      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'View All Managers', 'Veiw Employee by Manager', 'View Employee by Department' ,'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role', 'Exit']    
     },
   ])
   .then(promptAnswer =>{
@@ -348,6 +363,9 @@ const userPrompt = () => {
         break;
       case 'Veiw Employee by Manager':
         viewEmployeesByManager();
+        break;
+      case 'View Employee by Department':
+        viewEmployeesByDepartment();
         break;
       case 'Add A Department': 
         addDepartment();
