@@ -126,16 +126,27 @@ const addDepartment= () =>{
 
 //Add a role function
 const addRole = () =>{
+  let departmentArr = [];
+  db.query(`SELECT * FROM department;`, (err, results) => {
+    if (err) {
+      console.log(err);
+    }
+
+    results.map(department => {
+      return departmentArr.push(`${department.department_name}`);
+    });
+  }
+);
   inquirer.prompt ([
     {
       type: 'input',
       name: 'roleTitle',
-      message: "What is the title of the role?",
+      message: "What is the Role you want to add?",
       validate: nameInput => {
         if (nameInput) {
             return true;
         } else {
-            console.log ("Please enter the role title!");
+            console.log ("Please enter the new role!");
             return false; 
         }
       }
@@ -154,22 +165,16 @@ const addRole = () =>{
       }
     },
     {
-      type: 'input',
-      name: 'departmentId',
+      type: 'rawlist',
+      name: 'departmentChoice',
       message: "What is the department id for this role?",
-      validate: nameInput => {
-        if (nameInput) {
-            return true;
-        } else {
-            console.log ("Please enter a department id for the role!");
-            return false; 
-        }
-      }
+      choices: departmentArr,
     },
   ])
   .then(answer =>{
+      departmentID = departmentArr.indexOf(answer.departmentChoice) + 1;
       const sql = `INSERT INTO role (role_title, salary, department_id) 
-      VALUES ('${answer.roleTitle}','${answer.salary}','${answer.departmentId}')`;
+      VALUES ('${answer.roleTitle}','${answer.salary}','${departmentID}')`;
     db.query(sql, (err, result) => {
       if(err) {
           console.log(err);
