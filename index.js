@@ -1,21 +1,8 @@
-//const express = require('express');
 //Imports and requires the inquirer for command line prompts
 const inquirer = require('inquirer');
-//Imports and requires mysql2 
 const mysql = require('mysql2');
-//Imports and requires console.table
 const cTable = require('console.table');
-//Imports and requires the promise mysql 
-//const promiseSQL = require('mysql2/promise');
-//Connects to the DB and port
-//const db = require('./db/connection');
-// Imports and requires the promise mysql npm package
-const promiseSQL = require("promise-mysql");
-//const PORT = process.env.PORT || 3001;
-//const app = express();
-// Express middleware
-//app.use(express.urlencoded({ extended: false }));
-//app.use(express.json());
+
 
 // Declares the connection properties that will be used to established the connection
 const connectionProperties = {
@@ -26,7 +13,7 @@ const connectionProperties = {
   database: 'employee_tracker'
 };
 
-// Establishes the connection with the database by using the specified information
+// Establishes the connection with the database by using the obve information
 const db = mysql.createConnection(connectionProperties);
 
 // Checks if the database connection failed or gave an error
@@ -35,8 +22,8 @@ db.connect(err => {
   if (err) {
     console.log(err);
   }
-  console.log("Connected to the Database");
-  //promptInitiate();
+  //console.log("Connected to the Database");
+  userPrompt();
 });
 
 
@@ -264,6 +251,7 @@ const addEmployee = () => {
     });
 }
 //________________UPDATE__________________________________
+//function to update an employee's role
 const updateEmployeeRole = () => {
   let employeeArr = [];
   let roleArr = [];
@@ -271,10 +259,8 @@ const updateEmployeeRole = () => {
         if (err) {
           console.log(err);
         }
-  
-
         inquirer.
-        prompt([
+          prompt([
           {
             name: 'employeeSelection',
             type: 'rawlist',
@@ -300,29 +286,20 @@ const updateEmployeeRole = () => {
         }
       ])
     .then(answer =>{
-        //let firstName = answer.employeeSelection.split(" ")[0];
        
         let roleID = roleArr.indexOf(answer.role) + 1;
         let chosenItem = employeeArr.indexOf(answer.employeeSelection) + 1;
-/*
-        for(let i=1; i <= answer.length; i++) {
-          if(answer[i].fullName === answer.employeeArr) {
-              chosenItem = i;
-              console.log(chosenItem);
-          }
-      }*/
         
         db.query (`UPDATE employee SET role_id = ${roleID} WHERE id = ${chosenItem};`), (err,res) => {
           if (err) {
             console.log(err);
           }
         }
-//UPDATE employee SET role_id =6 WHERE id =9;
-    // re-prompt the user
+   
     userPrompt();
     
       });
-});
+  });
 }
 //______________USER PROMPT______________________________
 
@@ -369,5 +346,3 @@ const userPrompt = () => {
     }
   })
 };
-
-userPrompt();
