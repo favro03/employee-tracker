@@ -20,7 +20,7 @@ You can access this application here https://github.com/favro03/employee-tracker
 
 
 ## Usage
-[Running App](/assets/images/employeeTrackerApp.png)
+![Running App](/assets/images/employeeTrackerApp.png)
 
 A video demonstration can be found here:
 https://www.awesomescreenshot.com/video/7486305?key=593b1baa13e6fb8ce6a13fd20aca10c7
