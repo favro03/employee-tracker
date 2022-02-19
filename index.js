@@ -108,8 +108,8 @@ const viewEmployeesByManager = () => {
 };
 const viewEmployeesByDepartment= () => {
   db.query(`SELECT department.department_name AS Department, CONCAT(employee.first_name, ' ' ,employee.last_name) AS Employee FROM employee 
-  INNER JOIN role on role.id = employee.role_id 
-  INNER JOIN department on department.id = role.department_id;`, (err,rows) => {
+  INNER JOIN role ON role.id = employee.role_id 
+  INNER JOIN department ON department.id = role.department_id;`, (err,rows) => {
     if(err){
       console.log(err);
     }
@@ -121,6 +121,21 @@ const viewEmployeesByDepartment= () => {
   });
   userPrompt();
 };
+const viewDepartmentBudget = () =>{
+  db.query(`SELECT department.department_name AS department, SUM(salary) AS budget FROM  role 
+  INNER JOIN department ON role.department_id = department.id GROUP BY  role.department_id;`, (err, rows) => {
+    if (err){
+      console.log(err);
+    }
+    console.log();
+    console.log('=========================');
+    console.log('    Department Budget    ');
+    console.log('=========================');
+    console.table(rows);
+  });
+  userPrompt();
+};
+
 //________________ADD__________________________________
 //Create a department function
 const addDepartment= () =>{
@@ -283,6 +298,7 @@ const addEmployee = () => {
       );
     });
 }
+
 //________________UPDATE__________________________________
 //function to update an employee's role
 const updateEmployeeRole = () => {
@@ -343,7 +359,7 @@ const userPrompt = () => {
       type: 'list',
       name: 'choice',
       message: "What would you like to do?",
-      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'View All Managers', 'Veiw Employee by Manager', 'View Employee by Department' ,'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role', 'Exit']    
+      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'View All Managers', 'Veiw Employee by Manager', 'View Employee by Department', 'View Department Budget', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role', 'Exit']    
     },
   ])
   .then(promptAnswer =>{
@@ -366,6 +382,9 @@ const userPrompt = () => {
         break;
       case 'View Employee by Department':
         viewEmployeesByDepartment();
+        break;
+      case 'View Department Budget':
+        viewDepartmentBudget();
         break;
       case 'Add A Department': 
         addDepartment();
