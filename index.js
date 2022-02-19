@@ -304,7 +304,7 @@ const addEmployee = () => {
 const updateEmployeeRole = () => {
   let employeeArr = [];
   let roleArr = [];
-  db.query(`SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name) AS employeeName, employee.role_id, role.role_title AS title FROM employee JOIN role ON employee.role_id = role.id`, (err, rows) => {
+  db.query(`SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name) AS Employee, employee.role_id, role.role_title AS title FROM employee JOIN role ON employee.role_id = role.id;`, (err, rows) => {
         if (err) {
           console.log(err);
         }
@@ -316,7 +316,7 @@ const updateEmployeeRole = () => {
             message: "What employee needs updating?",
             choices: function() {
                 for(let i=0; i < rows.length; i++) {
-                    employeeArr.push(rows[i].employeeName);
+                    employeeArr.push(rows[i].Employee);
                 }
                 return employeeArr;
             },
@@ -350,6 +350,57 @@ const updateEmployeeRole = () => {
       });
   });
 }
+
+//Update employee manager
+const updateEmployeeManager = () => {
+  let employeeArr = [];
+  let managerArr = [];
+  db.query(`SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name) AS Employee, CONCAT(manager.first_name, ' ', manager.last_name) AS Manager  FROM employee JOIN manager ON employee.manager_id = manager.id;`, (err, rows) => {
+        if (err) {
+          console.log(err);
+        }
+        inquirer.
+          prompt([
+          {
+            name: 'employeeSelection',
+            type: 'rawlist',
+            message: "What employee needs updating?",
+            choices: function() {
+                for(let i=0; i < rows.length; i++) {
+                    employeeArr.push(rows[i].Employee);
+                }
+                return employeeArr;
+            },
+            
+        },
+        {
+            name: 'manager',
+            type: 'rawlist',
+            message: "update the chosen role for the chosen person",
+            choices: function() {
+                for(let j=0; j < rows.length; j++) {
+                    managerArr.push(rows[j].Manager);
+                }
+                return managerArr;
+            },
+        }
+      ])
+    .then(answer =>{
+       
+        let managerID = managerArr.indexOf(answer.manager) + 1;
+        let chosenItem = employeeArr.indexOf(answer.employeeSelection) + 1;
+        
+        db.query (`UPDATE employee SET manager_id = ${managerID} WHERE id = ${chosenItem};`), (err,res) => {
+          if (err) {
+            console.log(err);
+          }
+        }
+   
+    userPrompt();
+    
+      });
+  });
+}
 //______________USER PROMPT______________________________
 
 const userPrompt = () => {
@@ -359,7 +410,7 @@ const userPrompt = () => {
       type: 'list',
       name: 'choice',
       message: "What would you like to do?",
-      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'View All Managers', 'Veiw Employee by Manager', 'View Employee by Department', 'View Department Budget', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role', 'Exit']    
+      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'View All Managers', 'Veiw Employee by Manager', 'View Employee by Department', 'View Department Budget', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role', 'Update An Employee Manager', 'Exit']    
     },
   ])
   .then(promptAnswer =>{
@@ -397,6 +448,9 @@ const userPrompt = () => {
         break;
       case 'Update An Employee Role':
         updateEmployeeRole();
+        break;
+      case 'Update An Employee Manager':
+        updateEmployeeManager();
         break;
       case 'Exit':
         db.end();
