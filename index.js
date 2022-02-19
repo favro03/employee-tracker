@@ -27,7 +27,7 @@ db.connect(err => {
 });
 
 
-//__________________VIEW ALL_________________________
+//__________________VIEW ALL FUNCTIONS_________________________
 //View all Department function
 const viewAllDepartments = () =>{
   db.query(`SELECT * FROM department`, (err, rows) => {
@@ -136,7 +136,7 @@ const viewDepartmentBudget = () =>{
   userPrompt();
 };
 
-//________________ADD__________________________________
+//________________ADD NEW FUNCTIONS__________________________________
 //Create a department function
 const addDepartment= () =>{
   inquirer.prompt ([
@@ -299,7 +299,7 @@ const addEmployee = () => {
     });
 }
 
-//________________UPDATE__________________________________
+//________________UPDATE FUNCTIONS__________________________________
 //function to update an employee's role
 const updateEmployeeRole = () => {
   let employeeArr = [];
@@ -401,6 +401,112 @@ const updateEmployeeManager = () => {
       });
   });
 }
+//______________DELETE FUNCTIONS_________________________
+// Delete an Employee
+const deleteEmployee = () => {
+  let employeeArr = [];
+  db.query(`SELECT employee.id, CONCAT(employee.first_name, ' ', employee.last_name) AS Employee FROM employee;`, (err, rows) => {
+        if (err) {
+          console.log(err);
+        }
+        inquirer.
+          prompt([
+          {
+            name: 'employeeSelection',
+            type: 'rawlist',
+            message: "What employee do you want to remove?",
+            choices: function() {
+                for(let i=0; i < rows.length; i++) {
+                    employeeArr.push(rows[i].Employee);
+                }
+                return employeeArr;
+            },
+        },
+      ])
+    .then(answer =>{
+      let chosenItem = employeeArr.indexOf(answer.employeeSelection) + 1;
+        
+      db.query (`DELETE FROM employee WHERE employee.id = ${chosenItem};`), (err,res) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+   
+    userPrompt();
+    
+    });
+  });
+}
+// Delete a role
+const deleteRole = () => {
+  let roleArr = [];
+  db.query(`SELECT id, role_title AS role  FROM role;`, (err, rows) => {
+        if (err) {
+          console.log(err);
+        }
+        inquirer.
+          prompt([
+          {
+            name: 'roleSelection',
+            type: 'rawlist',
+            message: "What role do you want to remove?",
+            choices: function() {
+                for(let i=0; i < rows.length; i++) {
+                    roleArr.push(rows[i].role);
+                }
+                return roleArr;
+            },
+        },
+      ])
+    .then(answer =>{
+      let chosenItem = roleArr.indexOf(answer.roleSelection) + 1;
+        
+      db.query (`DELETE FROM role WHERE role.id = ${chosenItem};`), (err,res) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+   
+    userPrompt();
+    
+    });
+  });
+}
+// Delete a department
+const deleteDepartment = () => {
+  let departmentArr = [];
+  db.query(`SELECT id, department_name AS department  FROM department;`, (err, rows) => {
+        if (err) {
+          console.log(err);
+        }
+        inquirer.
+          prompt([
+          {
+            name: 'departmentSelection',
+            type: 'rawlist',
+            message: "What department do you want to remove?",
+            choices: function() {
+                for(let i=0; i < rows.length; i++) {
+                    departmentArr.push(rows[i].department);
+                }
+                return departmentArr;
+            },
+        },
+      ])
+    .then(answer =>{
+      let chosenItem = departmentArr.indexOf(answer.departmentSelection) + 1;
+        
+      db.query (`DELETE FROM department WHERE department.id = ${chosenItem};`), (err,res) => {
+        if (err) {
+          console.log(err);
+        }
+      }
+   
+    userPrompt();
+    
+    });
+  });
+}
 //______________USER PROMPT______________________________
 
 const userPrompt = () => {
@@ -410,7 +516,7 @@ const userPrompt = () => {
       type: 'list',
       name: 'choice',
       message: "What would you like to do?",
-      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'View All Managers', 'Veiw Employee by Manager', 'View Employee by Department', 'View Department Budget', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role', 'Update An Employee Manager', 'Exit']    
+      choices: ['View All Departments', 'View All Roles', 'View All Employees', 'View All Managers', 'Veiw Employee by Manager', 'View Employee by Department', 'View Department Budget', 'Add A Department', 'Add A Role', 'Add An Employee', 'Update An Employee Role', 'Update An Employee Manager', 'Remove an Employee', 'Remove a Role', 'Remove a Department', 'Exit']    
     },
   ])
   .then(promptAnswer =>{
@@ -451,6 +557,15 @@ const userPrompt = () => {
         break;
       case 'Update An Employee Manager':
         updateEmployeeManager();
+        break;
+      case 'Remove an Employee':
+        deleteEmployee();
+        break;
+      case 'Remove a Role':
+        deleteRole();
+        break;
+      case 'Remove a Department':
+        deleteDepartment();
         break;
       case 'Exit':
         db.end();
